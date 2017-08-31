@@ -1,8 +1,23 @@
 # Datbase Assignment 1
-## NTNU Gjøvik
-### IMT2571
+## IMT2571
+### NTNU Gjøvik
 
 ```
-Database assignment 1
+Part I
 
+Getting Familiar with MySQL/MariaDB and
+phpMyAdmin
+```
+
+```
+Part II
+
+Getting Familiar with HTML, PHP and PDO
+```
+
+```
+Part III
+
+* Creating a Database Application
+* Write tests for the database application
 ```
