@@ -191,6 +191,8 @@ class UnitTests extends TestCase
         $book = $this->generateTestBook($i);
 				$model->addBook($book);
 
+        print_r($book);
+
         // $this->assertEquals(null, $book->id);
         // $this->assertEquals($dbSize, $this->getConnection()->getRowCount('book'));
 
