@@ -30,10 +30,7 @@ class Model implements IModel
 	 * @todo Replace implementation using a real database.
 	 */
 	public function getBookById($id) {
-		if(is_numeric($id)) {
-			return $this->dbmodel->getBookById($id);
-		}
-		return null;
+		return $this->dbmodel->getBookById($id);
 	}
 
 	/** Adds a new book to the collection.

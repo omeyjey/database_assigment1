@@ -29,59 +29,48 @@ class Controller {
 
 /** The one function running the controller code.
  */
-	public function invoke()
-	{
-		if (isset($_GET['id']))
-		{
+	public function invoke() {
+		if (isset($_GET['id'])) {
 			// show the requested book
-			$book = $this->model->getBookById($_GET['id']);
-			if ($book)
-			{
-				$view = new BookView($book, self::$OP_PARAM_NAME, self::$DEL_OP_NAME, self::$MOD_OP_NAME);
-				$view->create();
-			}
-			else
-			{
-				$view = new ErrorView('Book not found');
-				$view->create();
-			}
-		}
-		else
-		{
-			if (isset($_POST[self::$OP_PARAM_NAME]))//A book record is to be added, deleted, or modified
-			{
-				switch($_POST[self::$OP_PARAM_NAME])
-				{
-				case self::$ADD_OP_NAME :
-						if ( !empty($_POST['title']) && !empty($_POST['author']) ) {
-							$book = new Book($_POST['title'], $_POST['author'], $_POST['description']);
-					    $this->model->addBook($book);
-						} else {
-							$view = new ErrorView('Invalid title or author');
-							$view->create();
-							die();
-						}
-				    break;
-				case self::$DEL_OP_NAME :
-				    $this->model->deleteBook($_POST['id']);
-				    break;
-				case self::$MOD_OP_NAME :
-						if ( !empty($_POST['title']) && !empty($_POST['author']) ) {
-					    $book = new Book($_POST['title'], $_POST['author'], $_POST['description'], $_POST['id']);
-					    $this->model->modifyBook($book);
-						} else {
-							$view = new ErrorView('Invalid title or author');
-							$view->create();
-							die();
-						}
-				    break;
+			try {
+				$book = $this->model->getBookById($_GET['id']);
+				if ($book) {
+					$view = new BookView($book, self::$OP_PARAM_NAME, self::$DEL_OP_NAME, self::$MOD_OP_NAME);
+					$view->create();
+				} else {
+					throw new Exception('Book not found');
 				}
+			} catch(Exception $err) {
+				$view = new ErrorView($err->getMessage());
+				$view->create();
 			}
+		} else {
+			try {
+				if (isset($_POST[self::$OP_PARAM_NAME])) {
+					switch($_POST[self::$OP_PARAM_NAME]) {
+						case self::$ADD_OP_NAME :
+						$book = new Book($_POST['title'], $_POST['author'], $_POST['description']);
+						$this->model->addBook($book);
+						break;
+						case self::$DEL_OP_NAME :
+						$this->model->deleteBook($_POST['id']);
+						break;
+						case self::$MOD_OP_NAME :
+						$book = new Book($_POST['title'], $_POST['author'], $_POST['description'], $_POST['id']);
+						$this->model->modifyBook($book);
+						break;
+					}
+				}
 
-			// no special book is requested, we'll show a list of all available books
-			$books = $this->model->getBookList();
-			$view = new BookListView($books, self::$OP_PARAM_NAME, self::$ADD_OP_NAME);
-			$view->create();
+				// no special book is requested, we'll show a list of all available books
+				$books = $this->model->getBookList();
+				$view = new BookListView($books, self::$OP_PARAM_NAME, self::$ADD_OP_NAME);
+				$view->create();
+
+			} catch(Exception $err) {
+				$view = new ErrorView($err->getMessage());
+				$view->create();
+			}
 		}
 	}
 }

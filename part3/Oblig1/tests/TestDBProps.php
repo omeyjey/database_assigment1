@@ -4,6 +4,6 @@
 const TEST_DB_HOST = '127.0.0.1';
 const TEST_DB_USER = 'root';
 const TEST_DB_PWD = '';
-const TEST_DB_NAME = 'test';
+const TEST_DB_NAME = 'test_oblig1';
 
 ?>

@@ -101,7 +101,14 @@ class UnitTests extends TestCase
               'author' => '',
               'description' => 'No author',
                self::OUTCOME_IDX => self::OUTCOME_FAILURE
-              )
+             ),
+             array (
+             'id' => null,
+             'title' => '',
+             'author' => '',
+             'description' => 'Description no autho nor title',
+              self::OUTCOME_IDX => self::OUTCOME_FAILURE
+             )
             );
 
     /**
@@ -187,25 +194,20 @@ class UnitTests extends TestCase
 				self::$TEST_CASES[$i]['id'] = $book->id;
 				$this->assertBookData($i, $book);
 			}
-			else {
+			else { // OUTCOME_FAILURE
+        $this->expectException(InvalidArgumentException::class);
         $book = $this->generateTestBook($i);
 				$model->addBook($book);
-
-        print_r($book);
-
-        // $this->assertEquals(null, $book->id);
-        // $this->assertEquals($dbSize, $this->getConnection()->getRowCount('book'));
-
 			}
 		}
 	}
 
-    /**
-     * Tests for DBModel::modifyBook()
+ /**
+   * Tests for DBModel::modifyBook()
 	 * Warning, this method has a potential side effect: id of elements in
 	 * TEST_CASES may be changed if the test fails.
 	 * @see TEST_CASES
-     */
+  **/
 	public function testModifyBook() {
 		$model = new DBModel(self::$pdo);
 
@@ -230,21 +232,22 @@ class UnitTests extends TestCase
 				// Restore database values
 				$book = $this->generateTestBook(0);
 				$model->modifyBook($book);
-			}
-			else {
-				//TODO: Add tests for unsuccessful cases
+			} else {
+        $this->expectException(InvalidArgumentException::class);
+        $book = $this->generateTestBook($i);
+				$model->modifyBook($book);
 			}
 		}
 	}
 
-    /**
-     * Tests for DBModel::deleteBook()
-     */
+ /**
+  * Tests for DBModel::deleteBook()
+  */
 	public function testDeleteBook() {
 		$model = new DBModel(self::$pdo);
 		$dbSize = $this->getConnection()->getRowCount('book');
 
-        // Using the first test case as the target for deletions
+    // Using the first test case as the target for deletions
     $id = self::$TEST_CASES[0]['id'];
 		$model->deleteBook($id);
 		$dbSize--;
@@ -258,12 +261,12 @@ class UnitTests extends TestCase
 		$this->assertEquals($dbSize, $this->getConnection()->getRowCount('book'), "Invalid book ID: Expecting book table size to decrement");
 	}
 
-    /**
-     * Generates a Book object corresponding to the test case in $TEST_CASES.
+  /**
+   * Generates a Book object corresponding to the test case in $TEST_CASES.
 	 * @param int $caseIdx Index of the test as
 	 * @return Book A Book object corresponding to the test case
 	 * @see $TEST_CASES
-     */
+   */
 	protected function generateTestBook ($caseIdx) {
 		return new Book(
 		           self::$TEST_CASES[$caseIdx]['title'],

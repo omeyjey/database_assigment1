@@ -7,8 +7,7 @@ require_once("vendor/autoload.php");
  * Please set the value of the $baseUrl to the URL of the assignment page
  * @author Rune Hjelsvold
  */
-class FunctionalTests extends \PHPUnit\Framework\TestCase
-{
+class FunctionalTests extends \PHPUnit\Framework\TestCase {
 	/**
 	* Index of the collection page title in the PAGE_TITLES array
 	* @see PAGE_TITLE */
@@ -129,7 +128,7 @@ class FunctionalTests extends \PHPUnit\Framework\TestCase
 		            (
 					    'title' => '',
 					    'author' => 'Test',
-					    'description' => '',
+					    'description' => 'No title',
 						self::OUTCOME_IDX => self::OUTCOME_FAILURE
 					);
 		// Case where author is empty string
@@ -137,7 +136,14 @@ class FunctionalTests extends \PHPUnit\Framework\TestCase
 		            (
 					    'title' => 'Test',
 					    'author' => '',
-					    'description' => '',
+					    'description' => 'No auther',
+						self::OUTCOME_IDX => self::OUTCOME_FAILURE
+					);
+		$cases[5] = array
+		            (
+					    'title' => '',
+					    'author' => '',
+					    'description' => 'No author nor title',
 						self::OUTCOME_IDX => self::OUTCOME_FAILURE
 					);
 		return $cases;
@@ -149,10 +155,8 @@ class FunctionalTests extends \PHPUnit\Framework\TestCase
 	 *        if no page reference is passed.
 	 * @return integer the number of books listed on the page.
 	 */
-	protected function getBookListLength($page = null)
-	{
-		if (!$page)
-		{
+	protected function getBookListLength($page = null) {
+		if (!$page) {
 			$this->session->visit($this->baseUrl);
 			$page = $this->session->getPage();
 		}
@@ -168,38 +172,34 @@ class FunctionalTests extends \PHPUnit\Framework\TestCase
 	 * @param string $description description of the book to be added.
 	 * @see teardown()
 	 */
- 	protected function addBook(&$id, $title, $author, $description, $expectedOutcome = self::OUTCOME_SUCCESS)
-	{
+ 	protected function addBook(&$id, $title, $author, $description, $expectedOutcome = self::OUTCOME_SUCCESS) {
 		// Load book list to get to the addForm
-        $this->session->visit($this->baseUrl);
-        $page = $this->session->getPage();
+    $this->session->visit($this->baseUrl);
+    $page = $this->session->getPage();
 		$listLength = $this->getBookListLength($page);
-        $addForm = $page->find('xpath', 'body/form[@id="addForm"]');
+    $addForm = $page->find('xpath', 'body/form[@id="addForm"]');
 
 		// Complete and submit addForm
-        $addForm->find('xpath', 'input[@name="title"]')->setValue($title);
-        $addForm->find('xpath', 'input[@name="author"]')->setValue($author);
-        $addForm->find('xpath', 'input[@name="description"]')->setValue($description);
+    $addForm->find('xpath', 'input[@name="title"]')->setValue($title);
+    $addForm->find('xpath', 'input[@name="author"]')->setValue($author);
+    $addForm->find('xpath', 'input[@name="description"]')->setValue($description);
 		$addForm->submit();
 
-        $page = $this->session->getPage();
+    $page = $this->session->getPage();
 
-		if ($expectedOutcome == self::OUTCOME_SUCCESS)
-		{
+		if ($expectedOutcome == self::OUTCOME_SUCCESS) {
 		    // Verify that the collection page was returned
-            $this->assertTrue($this->isExpectedPage($page, self::COLLECTION_PAGE_TITLE_IDX), 'addBook: expecting collection page');
+        $this->assertTrue($this->isExpectedPage($page, self::COLLECTION_PAGE_TITLE_IDX), 'addBook: expecting collection page');
 
 		    // Record the id of the book if it was added to the list
-		    if ($this->getBookListLength($page) > $listLength)
-		    {
+		    if ($this->getBookListLength($page) > $listLength) {
 		    	// Record the id that was assigned to the book - assuming that the newest book is the last and that id has the format bookXXX
 			    $id = substr($page->find('xpath', 'body/table/tbody/tr[last()]/@id')->getText(),4);
 
 			    $this->testBookIds[] = $id;
 		    }
 		}
-		else
-		{
+		else {
 			$this->assertTrue($this->isExpectedPage($page, self::ERROR_PAGE_TITLE_IDX), 'addBook: expecting error page');
 		}
 	}
@@ -211,10 +211,9 @@ class FunctionalTests extends \PHPUnit\Framework\TestCase
 	 * @see teardown()
 	 * @uses removeBookEntry()
 	 */
- 	protected function deleteBook($id)
-	{
+ 	protected function deleteBook($id) {
 		// Remove book entry in collection
-        $this->removeBookEntry($id);
+    $this->removeBookEntry($id);
 
 		// Remove book id from cleanup array
 		$idx = array_search($id, $this->testBookIds);
@@ -226,14 +225,13 @@ class FunctionalTests extends \PHPUnit\Framework\TestCase
 	 * @param integer $id id of the book to be removed from the collection.
 	 * @see teardown()
 	 */
- 	protected function removeBookEntry($bookId)
-	{
+ 	protected function removeBookEntry($bookId) {
 		// Load page containing form to delete the book entry
-        $this->session->visit($this->baseUrl . '?id=' . $bookId);
-        $page = $this->session->getPage();
+    $this->session->visit($this->baseUrl . '?id=' . $bookId);
+    $page = $this->session->getPage();
 
 		// Submit the delete form
-        $delForm = $page->find('xpath', 'body/form[@id="delForm"]');
+    $delForm = $page->find('xpath', 'body/form[@id="delForm"]');
 		$delForm->submit();
 	}
 
@@ -245,19 +243,17 @@ class FunctionalTests extends \PHPUnit\Framework\TestCase
 	 * @param string $author book author
 	 * @param string $description book description
 	 */
- 	protected function modifyBook($id, $title, $author, $description)
-	{
+ 	protected function modifyBook($id, $title, $author, $description) {
 		// Load page containing form to modify the book entry
-        $this->session->visit($this->baseUrl . '?id=' . $id);
-        $page = $this->session->getPage();
+    $this->session->visit($this->baseUrl . '?id=' . $id);
+    $page = $this->session->getPage();
 
 		// Complete and submit the form to modify the book entry
-        $modForm = $page->find('xpath', 'body/form[@id="modForm"]');
-        $modForm->find('xpath', 'input[@name="title"]')->setValue($title);
-        $modForm->find('xpath', 'input[@name="author"]')->setValue($author);
-        $modForm->find('xpath', 'input[@name="description"]')->setValue($description);
+    $modForm = $page->find('xpath', 'body/form[@id="modForm"]');
+    $modForm->find('xpath', 'input[@name="title"]')->setValue($title);
+    $modForm->find('xpath', 'input[@name="author"]')->setValue($author);
+    $modForm->find('xpath', 'input[@name="description"]')->setValue($description);
 		$modForm->submit();
-
 	}
 
 	/**
@@ -269,16 +265,14 @@ class FunctionalTests extends \PHPUnit\Framework\TestCase
 	 * @param string $bookDescription book description
 	 * @uses string $assertBookDetails()
 	 */
-	protected function assertBookListEntry($bookId, $bookTitle, $bookAuthor, $bookDescription)
-	{
+	protected function assertBookListEntry($bookId, $bookTitle, $bookAuthor, $bookDescription) {
 		// Load book list to get to the book entries
 		$this->session->visit($this->baseUrl);
-        $page = $this->session->getPage();
+    $page = $this->session->getPage();
 
 		// Find the book entry and verify the data matches the expected value
 		$book = $page->find('xpath', 'body/table/tbody/tr[@id="book' . $bookId . '"]');
-		if ($book)
-		{
+		if ($book) {
 			$this->assertEquals($bookId, $book->find('xpath', 'td[1]/a')->getText(), 'assertBookListEntry: id');
 			$detailsLink = $book->find('xpath', 'td[1]/a');
 			$this->assertEquals($bookTitle, $book->find('xpath', 'td[position() = 2]')->getText(), 'assertBookListEntry: title');
@@ -287,9 +281,7 @@ class FunctionalTests extends \PHPUnit\Framework\TestCase
 
 			// Further verify that the content is the same on the details page
 			$this->assertBookDetails($detailsLink, $bookId, $bookTitle, $bookAuthor, $bookDescription);
-		}
-		else
-		{
+		} else {
 			// Book not found
 			$this->assertTrue(false, "assertBookListEntry: book expected for id=$bookId");
 		}
@@ -302,18 +294,17 @@ class FunctionalTests extends \PHPUnit\Framework\TestCase
 	 * @param string $bookAuthor book author
 	 * @param string $bookDescription book description
 	 */
-    protected function assertBookDetails($detailsLink, $bookId, $bookTitle, $bookAuthor, $bookDescription)
-    {
-		// Load book details page
-		$detailsLink->click();
-        $page = $this->session->getPage();
+    protected function assertBookDetails($detailsLink, $bookId, $bookTitle, $bookAuthor, $bookDescription) {
+			// Load book details page
+			$detailsLink->click();
+	    $page = $this->session->getPage();
 
-		// Verify values shown on form
-        $modForm = $page->find('xpath', 'body/form[@id="modForm"]');
-        $this->assertEquals($bookId, $modForm->find('xpath', 'input[@name="id"]')->getValue(), 'assertBookListEntry: book id');
-        $this->assertEquals($bookTitle, $modForm->find('xpath', 'input[@name="title"]')->getValue(), 'assertBookListEntry: book title');
-        $this->assertEquals($bookAuthor, $modForm->find('xpath', 'input[@name="author"]')->getValue(), 'assertBookListEntry: book author');
-        $this->assertEquals($bookDescription, $modForm->find('xpath', 'input[@name="description"]')->getValue(), 'assertBookListEntry: book description');
+			// Verify values shown on form
+	    $modForm = $page->find('xpath', 'body/form[@id="modForm"]');
+	    $this->assertEquals($bookId, $modForm->find('xpath', 'input[@name="id"]')->getValue(), 'assertBookListEntry: book id');
+	    $this->assertEquals($bookTitle, $modForm->find('xpath', 'input[@name="title"]')->getValue(), 'assertBookListEntry: book title');
+	    $this->assertEquals($bookAuthor, $modForm->find('xpath', 'input[@name="author"]')->getValue(), 'assertBookListEntry: book author');
+	    $this->assertEquals($bookDescription, $modForm->find('xpath', 'input[@name="description"]')->getValue(), 'assertBookListEntry: book description');
     }
 
 	/**
@@ -407,14 +398,16 @@ class FunctionalTests extends \PHPUnit\Framework\TestCase
 				// Verifying book content in book list and on book details page
 				$this->assertEquals($bookListLength, $this->getBookListLength(), 'testAdd: bookListLength');
 				$this->assertBookListEntry($testBookId, $testCase['title'], $testCase['author'], $testCase['description']);
-			}
-			else {
+			} else {
 				// Verifying that error page is returned
-				$testBookId = -1;
-				$this->addBook($testBookId, $testCase['title'], $testCase['author'], $testCase['description'], self::OUTCOME_FAILURE);
+				$this->addBook($testCase['id'], $testCase['title'], $testCase['author'], $testCase['description'], self::OUTCOME_FAILURE);
+				$this->assertEmpty($testCase['id']);
 
-				$page = $this->session->getPage();
-				$this->assertTrue($this->isExpectedPage($page, self::ERROR_PAGE_TITLE_IDX), 'addBook: expecting error page');
+				// $testBookId = -1;
+				// $this->addBook($testBookId, $testCase['title'], $testCase['author'], $testCase['description'], self::OUTCOME_FAILURE);
+
+				// $page = $this->session->getPage();
+				// $this->assertTrue($this->isExpectedPage($page, self::ERROR_PAGE_TITLE_IDX), 'addBook: expecting error page');
 			}
 		}
 	}
@@ -466,7 +459,7 @@ class FunctionalTests extends \PHPUnit\Framework\TestCase
 					$this->modifyBook($testBookId, $testCase['title'], $testCase['author'], $testCase['description']);
 
 					$page = $this->session->getPage();
-					$this->assertTrue($this->isExpectedPage($page, self::ERROR_PAGE_TITLE_IDX), 'addBook: expecting error page');
+					$this->assertTrue($this->isExpectedPage($page, self::ERROR_PAGE_TITLE_IDX), 'modifyBook: expecting error page');
 				}
 			}
     }

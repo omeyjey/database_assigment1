@@ -33,8 +33,10 @@ class DBModel implements IModel {
    */
   public function getBookList() {
     $bookList = [];
+
     $smth = $this->db->prepare('SELECT * FROM book');
     $smth->execute();
+
     while($row = $smth->fetchObject()) {
       $bookList[] = new Book($row->title, $row->author, $row->description, $row->id);
     }
@@ -47,6 +49,9 @@ class DBModel implements IModel {
  * @throws PDOException
    */
   public function getBookById($id) {
+    if (!is_numeric($id)) {
+      throw new InvalidArgumentException('Invalid id');
+    }
     $smth = $this->db->prepare('SELECT * FROM book WHERE id=?');
     $smth->execute( [$id] );
     $book = $smth->fetchObject();
@@ -55,6 +60,7 @@ class DBModel implements IModel {
     } else {
       return null;
     }
+
   }
 
   /** Adds a new book to the collection.
@@ -62,6 +68,9 @@ class DBModel implements IModel {
  * @throws PDOException
    */
   public function addBook($book) {
+    if (empty($book->title) || empty($book->author)) {
+      throw new InvalidArgumentException('Invalid title or author');
+    }
     $smth = $this->db->prepare('INSERT INTO book (title, author, description)VALUES(:title, :author, :description)');
     $smth->execute([
         ':title' => $book->title,
@@ -77,6 +86,9 @@ class DBModel implements IModel {
    * @todo Implement function using PDO and a real database.
    */
   public function modifyBook($book) {
+    if (empty($book->title) || empty($book->author)) {
+      throw new InvalidArgumentException('Invalid title or author');
+    }
     $smth = $this->db->prepare('UPDATE book SET title=:title, author=:author, description=:description WHERE id=:id');
     $smth->execute([
       ':title' => $book->title,
@@ -90,6 +102,9 @@ class DBModel implements IModel {
    * @param $id integer The id of the book that should be removed from the collection.
    */
   public function deleteBook($id) {
+    if (!is_numeric($id)) {
+      throw new InvalidArgumentException('Invalid ID');
+    }
     $smth = $this->db->prepare('DELETE FROM book WHERE id=?');
     $smth->execute([$id]);
   }
